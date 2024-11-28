@@ -1,3 +1,10 @@
+## Comme tu Veux
+
+A project to decide what to do with your friends
+
+Create a session, name it and share the link with your friends.
+They add their idea and then can vote for their prefered idea by comparing them 2 by 2.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
