@@ -1,7 +1,8 @@
 "use client";
-import React, { useActionState } from "react";
+import React, { useActionState, useState } from "react";
 import { Choice, Contest } from "@/app/lib/definitions";
-import { createContest, State } from "@/app/lib/action";
+import { createGroup, GroupCreationState } from "@/app/lib/action";
+import { v4 as uuidv4 } from "uuid";
 // import { Button } from './Button';
 
 // interface Choice {
@@ -15,11 +16,19 @@ import { createContest, State } from "@/app/lib/action";
 // }
 
 export default function GroupCreationForm() {
-  const initialState: State = {
-    groupName: "",
-    choices: [{ id: 1, value: "" }],
+  const initialState: GroupCreationState = {
+    errors: {},
+    message: null,
   };
-  const [state, formAction] = useActionState(createContest, initialState);
+
+  const [state, formAction] = useActionState(createGroup, initialState);
+  const [choices, setChoices] = useState<Choice[]>([
+    { id: uuidv4(), value: "" },
+  ]);
+
+  const addChoice = () => {
+    setChoices([...choices, { id: uuidv4(), value: "" }]);
+  };
 
   return (
     <form
@@ -28,6 +37,9 @@ export default function GroupCreationForm() {
     >
       <h2 className="text-2xl font-bold mb-4">Create a Group</h2>
 
+      {state.errors?.groupName && (
+        <p className="text-red-500 mb-2">{state.errors.groupName[0]}</p>
+      )}
       <input
         type="text"
         name="groupName"
@@ -36,8 +48,11 @@ export default function GroupCreationForm() {
         className="w-full p-2 mb-4 border rounded"
       />
 
-      {state.choices.map((_: Choice, index: number) => (
-        <div key={index} className="flex mb-2">
+      {choices.map((choice, index) => (
+        <div key={choice.id} className="flex mb-2">
+          {state.errors?.choices && (
+            <p className="text-red-500 mb-2">{state.errors.choices[0]}</p>
+          )}
           <input
             type="text"
             name={`choice${index + 1}`}
@@ -45,27 +60,42 @@ export default function GroupCreationForm() {
             required
             className="flex-grow p-2 mr-2 border rounded"
           />
+          {choices.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setChoices(choices.filter((_, i) => i !== index))}
+              className="bg-red-500 text-white px-3 py-2 rounded"
+            >
+              ✕
+            </button>
+          )}
         </div>
       ))}
 
+      {state.message && (
+        <p
+          className={`mt-2 ${
+            state.message.includes("successfully")
+              ? "text-green-500"
+              : "text-red-500"
+          }`}
+        >
+          {state.message}
+        </p>
+      )}
+
       <div className="flex justify-between mt-4">
         <button
-          type="submit"
-          formAction={(formData) => {
-            const newState = {
-              ...state,
-              choices: [
-                ...state.choices,
-                { id: state.choices.length + 1, value: "" },
-              ],
-            };
-            formAction(newState);
-          }}
-          className="bg-green-500 hover:bg-green-600"
+          type="button"
+          onClick={addChoice}
+          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
         >
           Add Choice
         </button>
-        <button type="submit" className="bg-blue-500 hover:bg-blue-600">
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+        >
           Create Group
         </button>
       </div>

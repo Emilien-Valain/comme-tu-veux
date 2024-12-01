@@ -1,10 +1,10 @@
 export type Contest = {
-  id: number;
+  id: string;
   name: string;
   choices: Choice[];
 };
 
 export type Choice = {
-  id: number;
+  id: string;
   value: string;
 };
