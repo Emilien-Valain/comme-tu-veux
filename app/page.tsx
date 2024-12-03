@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { CreateContest } from "@/app/ui/button";
 
 export default function Home() {

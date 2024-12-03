@@ -1,6 +1,6 @@
 "use client";
 import React, { useActionState, useState } from "react";
-import { Choice, Contest } from "@/app/lib/definitions";
+import { Choice } from "@/app/lib/definitions";
 import { createGroup, GroupCreationState } from "@/app/lib/action";
 import { v4 as uuidv4 } from "uuid";
 // import { Button } from './Button';
