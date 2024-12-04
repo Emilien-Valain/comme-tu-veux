@@ -11,6 +11,9 @@ importers:
       '@heroicons/react':
         specifier: ^2.2.0
         version: 2.2.0(react@19.0.0-rc-66855b96-20241106)
+      '@next/env':
+        specifier: ^15.0.3
+        version: 15.0.3
       '@vercel/postgres':
         specifier: ^0.10.0
         version: 0.10.0

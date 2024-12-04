@@ -2,6 +2,11 @@ import { z } from "zod";
 import { sql } from "@vercel/postgres";
 import { v4 as uuidv4 } from "uuid";
 
+// Ensure the POSTGRES_URL environment variable is loaded
+if (!process.env.POSTGRES_URL) {
+  throw new Error("POSTGRES_URL environment variable is not defined");
+}
+
 const ChoiceSchema = z.object({
   id: z.string().uuid(),
   name: z
@@ -37,14 +42,24 @@ export async function createGroup(
   console.log("FormData:", formData);
   const generatedContestId = uuidv4();
   console.log("CONTEST NAME : ", formData.get("name"));
-  console.log("CHOICE 1 : ", formData.get("choice1"));
+
+  // Dynamically create the choices array based on the form data
+  const choices = [];
+  let index = 1;
+  let choice = formData.get(`choice${index}`);
+  while (choice) {
+    choices.push({
+      id: uuidv4(),
+      name: choice as string,
+    });
+    index++;
+    choice = formData.get(`choice${index}`);
+  }
+
   const validatedFields = GroupCreationSchema.safeParse({
     contestId: generatedContestId,
     groupName: formData.get("name") as string,
-    choices: Array.from({ length: 10 }).map((_, index) => ({
-      id: uuidv4(),
-      name: formData.get(`choice${index + 1}`) as string,
-    })),
+    choices,
   });
 
   if (!validatedFields.success) {
@@ -54,7 +69,11 @@ export async function createGroup(
     };
   }
 
-  const { groupName, choices, contestId } = validatedFields.data;
+  const {
+    groupName,
+    choices: validatedChoices,
+    contestId,
+  } = validatedFields.data;
 
   try {
     await sql`
@@ -62,7 +81,7 @@ export async function createGroup(
       VALUES (${contestId}, ${groupName})
     `;
 
-    const choiceValues = choices.map(
+    const choiceValues = validatedChoices.map(
       (choice) => `(${contestId}, '${choice.id}', '${choice.name}')`
     );
 
