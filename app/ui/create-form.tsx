@@ -1,38 +1,31 @@
 "use client";
-import React, { useActionState, useState } from "react";
+import React, { useState } from "react";
 import { Choice } from "@/app/lib/definitions";
 import { createGroup, GroupCreationState } from "@/app/lib/action";
 import { v4 as uuidv4 } from "uuid";
-// import { Button } from './Button';
-
-// interface Choice {
-//   id: number;
-//   value: string;
-// }
-
-// interface FormState {
-//   groupName: string;
-//   choices: Choice[];
-// }
 
 export default function GroupCreationForm() {
-  const initialState: GroupCreationState = {
-    errors: {},
-    message: null,
-  };
+  const initialState: GroupCreationState = { errors: {}, message: null };
+  const [state, setState] = useState(initialState);
 
-  const [state, formAction] = useActionState(createGroup, initialState);
   const [choices, setChoices] = useState<Choice[]>([
-    { id: uuidv4(), value: "" },
+    { id: uuidv4(), name: "" },
   ]);
 
   const addChoice = () => {
-    setChoices([...choices, { id: uuidv4(), value: "" }]);
+    setChoices([...choices, { id: uuidv4(), name: "" }]);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const result = await createGroup(state, formData);
+    setState(result);
   };
 
   return (
     <form
-      action={formAction}
+      onSubmit={handleSubmit}
       className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md"
     >
       <h2 className="text-2xl font-bold mb-4">Create a Group</h2>
@@ -42,7 +35,7 @@ export default function GroupCreationForm() {
       )}
       <input
         type="text"
-        name="groupName"
+        name="name"
         placeholder="Group Name"
         required
         className="w-full p-2 mb-4 border rounded"

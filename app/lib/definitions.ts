@@ -6,5 +6,5 @@ export type Contest = {
 
 export type Choice = {
   id: string;
-  value: string;
+  name: string;
 };

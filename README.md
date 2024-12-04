@@ -5,6 +5,21 @@ A project to decide what to do with your friends
 Create a session, name it and share the link with your friends.
 They add their idea and then can vote for their prefered idea by comparing them 2 by 2.
 
+# Features :
+
+- Create a contest
+- Add choices to a contest
+- modify and delete choices
+
+# To do :
+
+- Share a link to the contest
+- Add your name when joining/creating the contest
+- Vote for the contest (2 choices each time)
+- Display the rank of your choices after voting
+- Display the global rank of all the voters after voting
+- If new choices for the contest, possibility to choose again (force to revote ?)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

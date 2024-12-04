@@ -1,17 +1,15 @@
 import { z } from "zod";
 import { sql } from "@vercel/postgres";
-import { v4 as uuidv4 } from "uuid"; // Recommended for UUID generation
+import { v4 as uuidv4 } from "uuid";
 
-// Define the base choice schema
 const ChoiceSchema = z.object({
   id: z.string().uuid(),
-  value: z
+  name: z
     .string()
     .min(1, { message: "Choice must not be empty" })
     .max(100, { message: "Choice must be less than 100 characters" }),
 });
 
-// Group creation schema
 const GroupCreationSchema = z.object({
   contestId: z.string().uuid(),
   groupName: z
@@ -24,7 +22,6 @@ const GroupCreationSchema = z.object({
     .max(10, { message: "Maximum 10 choices allowed" }),
 });
 
-// State type for form errors and messages
 export type GroupCreationState = {
   errors?: {
     groupName?: string[];
@@ -33,22 +30,21 @@ export type GroupCreationState = {
   message?: string | null;
 };
 
-// Server action for group creation
 export async function createGroup(
   prevState: GroupCreationState,
   formData: FormData
 ) {
+  console.log("FormData:", formData);
   const generatedContestId = uuidv4();
-
+  console.log("CONTEST NAME : ", formData.get("name"));
+  console.log("CHOICE 1 : ", formData.get("choice1"));
   const validatedFields = GroupCreationSchema.safeParse({
     contestId: generatedContestId,
-    groupName: formData.get("groupName"),
-    choices: Array.from({ length: 10 })
-      .map((_, index) => ({
-        id: uuidv4(),
-        value: formData.get(`choice${index + 1}`) as string,
-      }))
-      .filter((choice) => choice.value.trim() !== ""),
+    groupName: formData.get("name") as string,
+    choices: Array.from({ length: 10 }).map((_, index) => ({
+      id: uuidv4(),
+      name: formData.get(`choice${index + 1}`) as string,
+    })),
   });
 
   if (!validatedFields.success) {
@@ -61,18 +57,17 @@ export async function createGroup(
   const { groupName, choices, contestId } = validatedFields.data;
 
   try {
-    // Remove the assignment if you don't need the result
     await sql`
-      INSERT INTO contests (id, name) 
+      INSERT INTO contests (id, name)
       VALUES (${contestId}, ${groupName})
     `;
 
     const choiceValues = choices.map(
-      (choice) => `(${contestId}, '${choice.id}', '${choice.value}')`
+      (choice) => `(${contestId}, '${choice.id}', '${choice.name}')`
     );
 
     await sql.query(`
-      INSERT INTO choices (contest_id, id, value) 
+      INSERT INTO choices (contest_id, id, name)
       VALUES ${choiceValues.join(",")}
     `);
   } catch (error) {
